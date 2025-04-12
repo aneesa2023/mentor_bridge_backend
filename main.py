@@ -114,3 +114,11 @@ async def ask_reply(req: Request):
 
     reply = await query_gemini(prompt)
     return {"reply": reply}
+
+@app.post("/celebrate")
+async def celebrate_win(req: Request):
+    data = await req.json()
+    achievement = data.get("achievement", "")
+    prompt = f"Write a short, energetic, and inspiring celebration message for someone who achieved this: {achievement}"
+    reply = await query_gemini(prompt)
+    return {"reply": reply}
