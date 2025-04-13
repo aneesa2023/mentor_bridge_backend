@@ -1,0 +1,54 @@
+service: mentorbridge
+
+plugins:
+  - serverless-python-requirements
+
+provider:
+  name: aws
+  runtime: python3.11
+  region: us-east-1
+  environment:
+    MONGO_URI: ${env:MONGO_URI}
+    AUTH0_DOMAIN: ${env:AUTH0_DOMAIN}
+    API_IDENTIFIER: ${env:API_IDENTIFIER}
+    ALGORITHMS: ${env:ALGORITHMS}
+
+functions:
+  api:
+    handler: lambda_handler.handler
+    events:
+      - http:
+          path: /{proxy+}
+          method: any
+          cors: true
+
+custom:
+  pythonRequirements:
+    dockerizePip: false
+    slim: false
+    zip: true
+
+# custom:
+#   pythonRequirements:
+#     dockerizePip: true
+#     slim: true
+#     zip: true
+#     vendor: .vendor
+#     useStaticCache: false
+#     useDownloadCache: false
+#     layer: false
+
+package:
+  individually: false
+  patterns:
+    - app/**
+    - main.py
+    - lambda_handler.py
+    - requirements.txt
+    - "!venv/**"
+    - "!node_modules/**"
+    - "!__pycache__/**"
+    - "!tests/**"
+    - "!debug-build/**"
+    - "!*.md"
+    - "!*.log"
