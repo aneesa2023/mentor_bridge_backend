@@ -5,7 +5,7 @@ from google import genai
 import logging
 
 # Configure Gemini API
-genai.configure(api_key=os.environ["AIzaSyD_b48jVSDdy8e8uojK1HKrIlzn6sIQO44"])
+genai.configure(api_key=os.environ["gemini-key"])
 model = genai.GenerativeModel("gemini-pro")
 
 # Optional: Cap the number of mentors to avoid timeouts
