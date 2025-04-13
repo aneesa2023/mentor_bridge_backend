@@ -38,10 +38,12 @@ GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_M
 TEMPLATES = {
     "affirmation_1": "Write a short, calming affirmation for someone building confidence in their tech journey. Keep it under 20 words.",
     "affirmation_2": "Generate a motivational, mentor-style affirmation that inspires someone learning, failing, and growing in tech. Max 20 words.",
-    "affirmation_3": "Give a daily positive affirmation for someone overcoming self-doubt while learning to code. Warm and hopeful tone.",
+    "affirmation_3": "Give a daily positive affirmation for someone overcoming self-doubt while learning to code. Warm and hopeful tone.  Max 30 words.",
     "intro": "Write a warm and confident intro message from {name} who wants to {goal} and {fun}.",
     "coach": "Rephrase this with empathy and clarity: '{question}'",
-    "ask": "Give a helpful, kind response to this anonymous mentee question: '{question}'"
+    "ask": "Give a short, kind, and practical response (max 40 words) to help this mentee: '{question}'",
+    "mentor_summary": "Based on the following mentor profile, write a professional and inspiring summary in 4-5 lines suitable for a mentorship platform. Use an inviting, clear tone:\nName: {full_name}\nCurrent Role: {current_company_role}\nExperience: {experience_years} years\nIndustries: {industries}\nDomains: {domains}\nTech Stack: {tech_stack}\nMentoring Style: {mentoring_style}\nPersonality: {personality_tags}\nReason to mentor: {mentoring_reason}"
+
 }
 
 # Root route
@@ -180,3 +182,24 @@ async def celebrate_win(req: Request):
     except Exception as e:
         logging.error("Celebrate win error: %s", traceback.format_exc())
         raise HTTPException(status_code=500, detail="Error generating celebration message")
+
+@app.post("/gemini-summary")
+async def mentor_summary(req: Request):
+    try:
+        data = await req.json()
+        prompt = TEMPLATES["mentor_summary"].format(
+            full_name=data.get("full_name", ""),
+            current_company_role=data.get("current_company_role", ""),
+            experience_years=data.get("experience_years", ""),
+            industries=", ".join(data.get("industries", [])),
+            domains=", ".join(data.get("domains", [])),
+            tech_stack=", ".join(data.get("tech_stack", [])),
+            mentoring_style=", ".join(data.get("mentoring_style", [])),
+            personality_tags=", ".join(data.get("personality_tags", [])),
+            mentoring_reason=data.get("mentoring_reason", "")
+        )
+        reply = await query_gemini(prompt)
+        return {"reply": reply}
+    except Exception as e:
+        logging.error("Gemini mentor summary error: %s", traceback.format_exc())
+        raise HTTPException(status_code=500, detail="Error generating mentor summary")
